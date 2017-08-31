@@ -1,0 +1,8 @@
+load csv with headers from "file:///polit.csv" AS csvLine CREATE (p:Persona:Politico { cargo: csvLine.cargo, name: csvLine.nombre})
+load csv with headers from "file:///polit.csv" AS csvLine CREATE (p:regal { nombre: csvLine.regal, cat: csvLine.categoria , precio: csvLine.precio })
+load csv with headers from "file:///part.csv" AS csvLine CREATE (p:Empresa:Partido { nombre: csvLine.part})
+load csv with headers from "file:///mun.csv" AS csvLine CREATE (p:Municipio { nombre: csvLine.mun})
+load csv with headers from "file:///emisores.csv" AS csvLine CREATE (p:Persona { nombre: csvLine.emisor})
+load csv with headers from "file:///admins.csv" AS csvLine CREATE (p:Persona { nombre: csvLine.adm})
+
+

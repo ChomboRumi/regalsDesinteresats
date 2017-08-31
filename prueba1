@@ -1,0 +1,15 @@
+load csv with headers from "file:///polit.csv" AS csvLine CREATE (p:Persona:Politico { cargo: csvLine.cargo, name: csvLine.receptor}) -[r:regal {fecha:csvLine.fecha , precio:csvLine.precio}]-> (u:Persona { name: csvLine.emisor})
+load csv with headers from "file:///polit.csv" AS csvLine CREATE (p:Persona:Politico { cargo: csvLine.cargo, name: csvLine.receptor}) -[r:regal {fecha:csvLine.fecha , precio:csvLine.precio}]-> (u:Empresa { name: csvLine.emisor, sector: csvLine.sector})
+load csv with headers from "file:///regal.csv" AS csvLine 
+Match (c:Persona {name : csvLine.empresa })
+Match (f:Politico {name : csvLine.politico})
+CREATE (f) -[r:contrato { precio:csvLine.precio, fecha: csvLine.fecha}]-> (c)
+
+load csv with headers from "file:///partidos.csv" AS csvLine 
+match (a {name: csvLine.name}) 
+create (c:Persona:Politico {cargo: a.cargo, partido:a.partido,name: a.name})-[y:pertenece { fechaIni : csvLine.fecha, partido: csvLine.partido }]->(r:cargo {name : csvLine.cargo, lugar : csvLine.lugar })	
+Set a=c 
+return a;
+
+
+

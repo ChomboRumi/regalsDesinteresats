@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script src="/lib/browser/neo4j-web.min.js"></script>
+<div  ng-app="myApp" ng-controller="customersCtrl"> 
+	<div id="barra">
+		<button ng-click="Home()" >home</button>
+	</div>
+	<div id="descripcion">
+		<div id="texto">
+			<p>{{descrip}}</p>
+		</div>
+		<div id = "target" ng-repeat="targeta in part">
+		<p>{{targeta}}</p>
+	</div>
+	</div>
+	
+	<div id="novedades">
+		<div id="infografia">
+			<img src={{sourc}}>
+		</div>
+		<div id="otros">
+			<ul ng-repeat="novetats in ultimos">
+            			<li> 
+					<a style="font-size: 25px;" href={{novetats.url}}>{{novetats.name}}</a>
+				  </li>
+                	</ul>
+		</div>
+	</div>
+</div>
+<script>
+angular.module('myApp', []).controller('customersCtrl', function($scope, $http, $location, $window) { console.log('hola');
+	$scope.home = function(){};
+	$http.get("participantes")
+            .then(function (response2) {
+            	var parti=response2.data;
+		$scope.part=[];
+		for (array in parti){
+			var cadena ="";
+			for (jso in parti[array]){
+				console.log(jso)
+				cadena += parti[array][jso] +"\t ";
+			}
+			$scope.part.push(cadena);
+		}
+        });
+	$http.get("ult")
+            .then(function (response2) {
+            	$scope.ultimos=response2.data;
+
+        });
+	$http.get("descripcion")
+            .then(function (response2) {
+            	$scope.descrip=response2.data;
+
+        });
+	
+	$scope.sourc= "/info";
+	console.log($scope.sourc);
+	var driver = neo4j.v1.driver("bolt://localhost");
+	var session = driver.session();
+session.run('MERGE (james:Person {name : {nameParam} }) RETURN james.name AS name', {nameParam: 'James'}).then(function (result) {
+    result.records.forEach(function (record) {
+      console.log(record.get('name'));
+    });
+    session.close();
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+});
+</script>
+</body>
+</html>
