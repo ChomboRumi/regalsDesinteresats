@@ -7,6 +7,9 @@ var app = express();
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname + '/index2.html'));
 });
+app.get('/graf', function (req, res) {
+    res.sendFile(path.join(__dirname + '/graf1.html'));
+});
 app.get('/ult', function (req, res) {
     res.send([{name : "prueba1", url : "#"},{name : "prueba2", url : "#"}]);
 });
@@ -48,24 +51,46 @@ app.listen(3000, function () {
 });
 
 const neo4j = require('neo4j-driver').v1;
+app.get('/grap', function (req, res) {
+    
 
 const driver = neo4j.driver('bolt://localhost');
 const session = driver.session();
 
-const personName = 'Alice';
+
 const resultPromise = session.run(
-  'CREATE (a:Person1 {name: $name}) RETURN a',
-  {name: personName}
+  'Match (a)-[r]->(b) RETURN a,r,b'
 );
 
 resultPromise.then(result => {
   session.close();
-
-  const singleRecord = result.records[0];
-  const node = singleRecord.get(0);
-
-  console.log(node.properties.name);
-
+	var cont =0;
+	//console.log(result);
+	var nodo = {};
+	var rel = [];
+	while (cont < result.records.length){
+		console.log(nodo[result.records[cont].get('a').identity  ] == undefined);
+		if(nodo[result.records[cont].get('a').identity] == undefined ){
+			var strAux= result.records[cont].get('a').identity;
+			nodo[strAux]= { 'labels' : result.records[cont].get('a').labels,  'id' : result.records[cont].get('a').properties.name};
+		}
+		if(nodo[result.records[cont].get('b').identity] == undefined){
+			var strAux= result.records[cont].get('b').identity;
+			nodo[strAux]= { 'labels' : result.records[cont].get('b').labels,  'id' : result.records[cont].get('b').properties.name};
+		}
+			console.log(result.records[cont].get('r').properties);
+			rel[cont]={"type" : result.records[cont].get('r').type, "source": result.records[cont].get('a').properties.name , "target":  result.records[cont].get('b').properties.name , "value" : result.records[cont].get('r').properties};
+			
+		cont++;
+}
+	nodos = [];
+	for(a in nodo){
+		nodos.push(nodo[a]);
+}
+var resu = {"nodes" : nodos, "links": rel};
+console.log(resu);
+res.send(resu);
   // on application exit:
   driver.close();
+});
 });
